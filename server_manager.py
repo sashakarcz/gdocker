@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Server manager module for managing Docker services via gRPC.
 """
@@ -8,6 +9,7 @@ import docker
 import grpc
 import service_manager_pb2
 import service_manager_pb2_grpc
+
 
 class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
     """
@@ -42,9 +44,9 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
             return service_manager_pb2.ServiceResponse(
                 status=f"Service '{service_name}' not found."
             )
-        except docker.errors.DockerException as e:
+        except docker.errors.DockerException as error:
             return service_manager_pb2.ServiceResponse(
-                status=f"Error restarting service: {str(e)}"
+                status=f"Error restarting service: {str(error)}"
             )
 
     def StartService(self, request, context):
@@ -69,9 +71,9 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
             return service_manager_pb2.ServiceResponse(
                 status=f"Service '{service_name}' not found."
             )
-        except docker.errors.DockerException as e:
+        except docker.errors.DockerException as error:
             return service_manager_pb2.ServiceResponse(
-                status=f"Error starting service: {str(e)}"
+                status=f"Error starting service: {str(error)}"
             )
 
     def search_containers(self, request, _context):
@@ -91,7 +93,9 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
             container_names = [container.name for container in container_list]
 
             # Find all matches with the search term
-            matches = difflib.get_close_matches(search_term, container_names, n=5, cutoff=0.1)
+            matches = difflib.get_close_matches(
+                search_term, container_names, n=5, cutoff=0.1
+            )
 
             return service_manager_pb2.SearchResponse(container_names=matches)
         except docker.errors.DockerException:
@@ -115,6 +119,7 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
             return self.client.containers.get(matches[0])
         return None
 
+
 def serve():
     """
     Starts the gRPC server and listens for incoming requests.
@@ -130,6 +135,7 @@ def serve():
         print("Server stopping...")
         server.stop(0)
         print("Server stopped")
+
 
 if __name__ == "__main__":
     serve()
