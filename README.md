@@ -96,13 +96,13 @@ To use the client, run it locally or from a different machine that has access to
 Example to search for a container:
 
 ```bash
-python client.py search homeassistant
+python3 client.py search homeassistant
 ```
 
 Example to start a container:
 
 ```bash
-python client.py start plex
+python3 client.py start plex
 ```
 
 ### Command-line Options
