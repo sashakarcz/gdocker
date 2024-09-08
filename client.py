@@ -1,9 +1,14 @@
+"""
+Client to manage Docker services via gRPC.
+"""
+
 import grpc
 import service_manager_pb2
 import service_manager_pb2_grpc
 import yaml
 import argparse
 from grpc._channel import _InactiveRpcError
+
 
 def manage_service(host, service_name, action):
     """
@@ -29,8 +34,9 @@ def manage_service(host, service_name, action):
                 response = stub.StopService(request)
 
             print(f"[{host}] {response.status}")
-    except _InactiveRpcError as e:
-        print(f"[{host}] Failed to connect to gRPC server: {e.details()}")
+    except _InactiveRpcError as error:
+        print(f"[{host}] Failed to connect to gRPC server: {error.details()}")
+
 
 def search_service(host, search_term):
     """
@@ -47,35 +53,45 @@ def search_service(host, search_term):
             response = stub.SearchService(request)
 
             if response.container_names:
-                print(f"[{host}] Found matching containers: {', '.join(response.container_names)}")
+                print(f"[{host}] Found matching containers: "
+                      f"{', '.join(response.container_names)}")
             else:
                 print(f"[{host}] No containers found matching '{search_term}'")
-    except _InactiveRpcError as e:
-        print(f"[{host}] Failed to connect to gRPC server: {e.details()}")
+    except _InactiveRpcError as error:
+        print(f"[{host}] Failed to connect to gRPC server: {error.details()}")
+
 
 def load_hosts_from_config(file_path):
     """
     Load the list of hosts from the specified configuration file.
-    
+
     Args:
         file_path (str): The path to the configuration file.
-        
+
     Returns:
         list: The list of hosts.
     """
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
         return config['docker_hosts']
 
+
 if __name__ == "__main__":
     # Set up argument parsing
-    parser = argparse.ArgumentParser(description="Manage Docker services on specified hosts")
-    parser.add_argument("action", choices=['start', 'stop', 'restart', 'search'], help="The action to perform")
-    parser.add_argument("service_name", help="The name of the service to manage or search term")
+    parser = argparse.ArgumentParser(
+        description="Manage Docker services on specified hosts"
+    )
     parser.add_argument(
-        "--config",
-        default="/etc/gdocker/hosts.yaml",
-        help="Path to the configuration file with the list of hosts (default: ./hosts.yaml)"
+        "action", choices=['start', 'stop', 'restart', 'search'],
+        help="The action to perform"
+    )
+    parser.add_argument(
+        "service_name", help="The name of the service to manage or search term"
+    )
+    parser.add_argument(
+        "--config", default="/etc/gdocker/hosts.yaml",
+        help="Path to the configuration file with the list of hosts "
+             "(default: /etc/gdocker/hosts.yaml)"
     )
 
     args = parser.parse_args()
