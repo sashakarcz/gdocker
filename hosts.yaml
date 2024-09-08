@@ -1,0 +1,4 @@
+docker_hosts:
+  - bork.starnix.net
+  - nn.starnix.net
+  - rocket.starnix.net

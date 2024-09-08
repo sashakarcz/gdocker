@@ -1,0 +1,13 @@
+services:
+  grpc_service_manager:
+    build: .
+    command: >
+      /bin/sh -c "
+      python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service_manager.proto &&
+      python server_manager.py"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    ports:
+      - "50051:50051"
