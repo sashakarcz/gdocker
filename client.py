@@ -74,7 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("service_name", help="The name of the service to manage or search term")
     parser.add_argument(
         "--config",
-        default="./hosts.yaml",
+        default="/etc/gdocker/hosts.yaml",
         help="Path to the configuration file with the list of hosts (default: ./hosts.yaml)"
     )
 

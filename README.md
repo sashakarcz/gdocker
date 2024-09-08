@@ -53,7 +53,7 @@ pip install -r requirements.txt
 Generate the gRPC code from the `.proto` file by running:
 
 ```bash
-python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service_manager.proto
+python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service_manager.proto
 ```
 
 Or, use `docker compose`:
