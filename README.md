@@ -181,9 +181,9 @@ Simply run the Python client on any machine that can reach the gRPC servers runn
 We welcome contributions to improve the project! Please follow these steps to contribute:
 
 1. Fork the repository.
-2. Create a new branch (git checkout -b feature-branch).
+2. Create a new branch (`git checkout -b feature-branch`).
 3. Make your changes.
-4. Commit and push (git push origin feature-branch).
+4. Commit and push (`git push origin feature-branch`).
 5. Open a pull request.
 
 ## License
