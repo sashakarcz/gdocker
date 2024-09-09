@@ -1,4 +1,4 @@
-# pylint: disable=W0221, E1111, E1101
+# pylint: disable=W0221
 
 """
 Unit tests for ServiceManager and serve function.
@@ -7,10 +7,6 @@ Unit tests for ServiceManager and serve function.
 import unittest
 from unittest.mock import patch, MagicMock
 from server_manager import ServiceManager, serve
-import warnings
-
-# Suppress ResourceWarning for unclosed sockets
-warnings.filterwarnings("ignore", category=ResourceWarning)
 
 
 class TestServiceManager(unittest.TestCase):

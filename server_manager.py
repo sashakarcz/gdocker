@@ -128,6 +128,7 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
             return service_manager_pb2.ServiceResponse(
                 status=f"Error stopping service: {str(error)}"
             )
+
     def _get_closest_container(self, service_name):
         """
         Helper method to find the closest matching container by name.
