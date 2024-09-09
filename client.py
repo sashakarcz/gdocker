@@ -1,28 +1,30 @@
+#!/usr/bin/env python3
 """
 Client to manage Docker services via gRPC.
 """
 
+import argparse
 import grpc
 import service_manager_pb2
 import service_manager_pb2_grpc
 import yaml
-import argparse
 from grpc._channel import _InactiveRpcError
 
 
-def manage_service(host, service_name, action):
+def manage_service(current_host, service_name, action):
     """
     Manage a Docker service (start, stop, restart) on the given host.
 
     Args:
-        host (str): The host IP or hostname.
+        current_host (str): The host IP or hostname.
         service_name (str): The name of the service to manage.
         action (str): The action to perform (start, stop, restart).
     """
     try:
-        with grpc.insecure_channel(f"{host}:50051") as channel:
+        with grpc.insecure_channel(f"{current_host}:50051") as channel:
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
 
+            response = None  # Initialize response to avoid uninitialized errors
             if action == 'restart':
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
                 response = stub.RestartService(request)
@@ -33,32 +35,33 @@ def manage_service(host, service_name, action):
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
                 response = stub.StopService(request)
 
-            print(f"[{host}] {response.status}")
+            if response:
+                print(f"[{current_host}] {response.status}")
     except _InactiveRpcError as error:
-        print(f"[{host}] Failed to connect to gRPC server: {error.details()}")
+        print(f"[{current_host}] Failed to connect to gRPC server: {error.details()}")
 
 
-def search_service(host, search_term):
+def search_service(current_host, search_term):
     """
     Search for a Docker service by name on the given host.
 
     Args:
-        host (str): The host IP or hostname.
+        current_host (str): The host IP or hostname.
         search_term (str): The term to search for in service names.
     """
     try:
-        with grpc.insecure_channel(f"{host}:50051") as channel:
+        with grpc.insecure_channel(f"{current_host}:50051") as channel:
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
             request = service_manager_pb2.SearchRequest(search_term=search_term)
             response = stub.SearchService(request)
 
             if response.container_names:
-                print(f"[{host}] Found matching containers: "
+                print(f"[{current_host}] Found matching containers: "
                       f"{', '.join(response.container_names)}")
             else:
-                print(f"[{host}] No containers found matching '{search_term}'")
+                print(f"[{current_host}] No containers found matching '{search_term}'")
     except _InactiveRpcError as error:
-        print(f"[{host}] Failed to connect to gRPC server: {error.details()}")
+        print(f"[{current_host}] Failed to connect to gRPC server: {error.details()}")
 
 
 def load_hosts_from_config(file_path):
@@ -99,8 +102,8 @@ if __name__ == "__main__":
     # Load hosts from the configuration file
     hosts = load_hosts_from_config(args.config)
 
-    for host in hosts:
+    for current_host in hosts:
         if args.action == 'search':
-            search_service(host, args.service_name)
+            search_service(current_host, args.service_name)
         else:
-            manage_service(host, args.service_name, args.action)
+            manage_service(current_host, args.service_name, args.action)

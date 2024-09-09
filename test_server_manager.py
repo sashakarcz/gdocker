@@ -5,10 +5,6 @@ Unit tests for ServiceManager and serve function.
 
 import unittest
 from unittest.mock import patch, MagicMock
-import grpc
-from concurrent import futures
-import service_manager_pb2
-import service_manager_pb2_grpc
 from server_manager import ServiceManager, serve
 
 
@@ -31,14 +27,14 @@ class TestServiceManager(unittest.TestCase):
         """
         Test successful service restart when service is found.
         """
-        request = service_manager_pb2.ServiceRequest(service_name='test_service')
+        request = MagicMock(service_name='test_service')
         context = MagicMock()
         mock_container = MagicMock()
         self.mock_client.containers.list.return_value = [mock_container]
         mock_container.name = 'test_service'
         self.mock_client.containers.get.return_value = mock_container
 
-        response = self.service_manager.RestartService(request, context)
+        response = self.service_manager.restart_service(request, context)
         self.assertEqual(
             response.status, "Service 'test_service' restarted successfully."
         )
@@ -48,22 +44,22 @@ class TestServiceManager(unittest.TestCase):
         """
         Test service restart when the service is not found.
         """
-        request = service_manager_pb2.ServiceRequest(service_name='unknown_service')
+        request = MagicMock(service_name='unknown_service')
         context = MagicMock()
         self.mock_client.containers.list.return_value = []
 
-        response = self.service_manager.RestartService(request, context)
+        response = self.service_manager.restart_service(request, context)
         self.assertEqual(response.status, "Service 'unknown_service' not found.")
 
     def test_restart_service_exception(self):
         """
         Test handling of an exception during service restart.
         """
-        request = service_manager_pb2.ServiceRequest(service_name='test_service')
+        request = MagicMock(service_name='test_service')
         context = MagicMock()
         self.mock_client.containers.list.side_effect = Exception('Test exception')
 
-        response = self.service_manager.RestartService(request, context)
+        response = self.service_manager.restart_service(request, context)
         self.assertIn('Error restarting service', response.status)
 
 
@@ -93,3 +89,4 @@ class TestServeFunction(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

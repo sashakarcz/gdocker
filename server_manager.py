@@ -22,7 +22,7 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         """
         self.client = docker.from_env()
 
-    def RestartService(self, request, context):
+    def restart_service(self, request, context):
         """
         Restarts a Docker service based on the provided service name.
 
@@ -49,7 +49,7 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
                 status=f"Error restarting service: {str(error)}"
             )
 
-    def StartService(self, request, context):
+    def start_service(self, request, context):
         """
         Starts a Docker service based on the provided service name.
 
