@@ -56,12 +56,6 @@ Generate the gRPC code from the `.proto` file by running:
 python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service_manager.proto
 ```
 
-Or, use `docker compose`:
-
-```bash
-docker compose up -d
-```
-
 ## Usage
 
 ## Server
