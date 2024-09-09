@@ -1,3 +1,5 @@
+# pylint: disable=E1101
+
 """
 Server manager module for managing Docker services via gRPC.
 """

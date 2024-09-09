@@ -1,15 +1,16 @@
-#!/usr/bin/env python3
+# pylint: disable=E1101
 
 """
 Client to manage Docker services via gRPC.
 """
+
+from grpc._channel import _InactiveRpcError
 
 import argparse
 import yaml
 import grpc
 import service_manager_pb2
 import service_manager_pb2_grpc
-from grpc._channel import _InactiveRpcError
 
 
 def manage_service(current_host, service_name, action):
