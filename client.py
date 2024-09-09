@@ -108,4 +108,3 @@ if __name__ == "__main__":
             search_service(docker_host, args.service_name)
         else:
             manage_service(docker_host, args.service_name, args.action)
-
