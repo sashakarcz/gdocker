@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Client to manage Docker services via gRPC.
 """

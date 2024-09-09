@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Server manager module for managing Docker services via gRPC.
 """
@@ -13,7 +12,7 @@ import service_manager_pb2_grpc
 
 class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
     """
-    ServiceManager provides methods to manage Docker services.
+    gRPC ServiceManager class to manage Docker services.
     """
 
     def __init__(self):
@@ -49,40 +48,13 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
                 status=f"Error restarting service: {str(error)}"
             )
 
-    def start_service(self, request, context):
+    def search_service(self, request, context):
         """
-        Starts a Docker service based on the provided service name.
-
-        Args:
-            request: The gRPC request containing the service name.
-            context: The gRPC context.
-
-        Returns:
-            A ServiceResponse message indicating the result of the start operation.
-        """
-        service_name = request.service_name
-        try:
-            container = self._get_closest_container(service_name)
-            if container:
-                container.start()
-                return service_manager_pb2.ServiceResponse(
-                    status=f"Service '{container.name}' started successfully."
-                )
-            return service_manager_pb2.ServiceResponse(
-                status=f"Service '{service_name}' not found."
-            )
-        except docker.errors.DockerException as error:
-            return service_manager_pb2.ServiceResponse(
-                status=f"Error starting service: {str(error)}"
-            )
-
-    def search_containers(self, request, _context):
-        """
-        Searches for Docker containers that closely match the search term.
+        Searches for Docker services by name.
 
         Args:
             request: The gRPC request containing the search term.
-            _context: The gRPC context.
+            context: The gRPC context.
 
         Returns:
             A SearchResponse message containing the list of matching container names.
@@ -134,7 +106,6 @@ def serve():
     except KeyboardInterrupt:
         print("Server stopping...")
         server.stop(0)
-        print("Server stopped")
 
 
 if __name__ == "__main__":
