@@ -171,10 +171,10 @@ message SearchResponse {
 
 ### Available RPC Methods
 
-- `RestartService`: Restarts a container by name.
-- `StartService`: Starts a container by name.
-- `StopService`: Stops a container by name.
-- `SearchService`: Searches for containers by name or partial name.
+- `restart_service`: Restarts a container by name.
+- `start_service`: Starts a container by name.
+- `stop_service`: Stops a container by name.
+- `search_service`: Searches for containers by name or partial name.
 
 ## Deployment
 
