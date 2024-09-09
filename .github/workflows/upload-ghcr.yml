@@ -30,4 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/sashakarcz/gdocker:latest
+          tags: ghcr.io/${{ github.repository }}/gdocker:latest
