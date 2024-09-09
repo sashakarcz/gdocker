@@ -145,10 +145,10 @@ The gRPC service is defined in `service_manager.proto`:
 syntax = "proto3";
 
 service ServiceManager {
-    rpc RestartService(ServiceRequest) returns (ServiceResponse);
-    rpc StartService(ServiceRequest) returns (ServiceResponse);
-    rpc StopService(ServiceRequest) returns (ServiceResponse);
-    rpc SearchService(SearchRequest) returns (SearchResponse);
+    rpc restart_service (ServiceRequest) returns (ServiceResponse);
+    rpc start_service (ServiceRequest) returns (ServiceResponse);
+    rpc stop_service (ServiceRequest) returns (ServiceResponse);
+    rpc search_service (SearchRequest) returns (SearchResponse);
 }
 
 message ServiceRequest {
@@ -166,6 +166,7 @@ message SearchRequest {
 message SearchResponse {
     repeated string container_names = 1;
 }
+
 ```
 
 ### Available RPC Methods
