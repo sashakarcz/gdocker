@@ -11,7 +11,6 @@ import yaml
 import service_manager_pb2
 import service_manager_pb2_grpc
 
-
 def manage_service(current_host, service_name, action):
     """
     Manage a Docker service (start, stop, restart) on the given host.
@@ -93,9 +92,9 @@ if __name__ == "__main__":
         "service_name", help="The name of the service to manage or search term"
     )
     parser.add_argument(
-        "--config", default="/etc/gdocker/hosts.yaml",
+        "--config", default="./hosts.yaml",
         help="Path to the configuration file with the list of hosts "
-             "(default: /etc/gdocker/hosts.yaml)"
+             "(default: ./hosts.yaml)"
     )
 
     args = parser.parse_args()

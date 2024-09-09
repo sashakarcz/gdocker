@@ -75,6 +75,59 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         except docker.errors.DockerException:
             return service_manager_pb2.SearchResponse(container_names=[])
 
+    def start_service(self, request, context):
+        """
+        Starts a Docker service based on the provided service name.
+
+        Args:
+            request: The gRPC request containing the service name.
+            context: The gRPC context.
+
+        Returns:
+            A ServiceResponse message indicating the result of the start operation.
+        """
+        service_name = request.service_name
+        try:
+            container = self._get_closest_container(service_name)
+            if container:
+                container.start()
+                return service_manager_pb2.ServiceResponse(
+                    status=f"Service '{container.name}' started successfully."
+                )
+            return service_manager_pb2.ServiceResponse(
+                status=f"Service '{service_name}' not found."
+            )
+        except docker.errors.DockerException as error:
+            return service_manager_pb2.ServiceResponse(
+                status=f"Error starting service: {str(error)}"
+            )
+
+    def stop_service(self, request, context):
+        """
+        Stops a Docker service based on the provided service name.
+
+        Args:
+            request: The gRPC request containing the service name.
+            context: The gRPC context.
+
+        Returns:
+            A ServiceResponse message indicating the result of the stop operation.
+        """
+        service_name = request.service_name
+        try:
+            container = self._get_closest_container(service_name)
+            if container:
+                container.stop()
+                return service_manager_pb2.ServiceResponse(
+                    status=f"Service '{container.name}' stopped successfully."
+                )
+            return service_manager_pb2.ServiceResponse(
+                status=f"Service '{service_name}' not found."
+            )
+        except docker.errors.DockerException as error:
+            return service_manager_pb2.ServiceResponse(
+                status=f"Error stopping service: {str(error)}"
+            )
     def _get_closest_container(self, service_name):
         """
         Helper method to find the closest matching container by name.
@@ -85,14 +138,17 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         Returns:
             The closest matching Docker container, or None if no match is found.
         """
-        container_list = self.client.containers.list(all=True)
-        container_names = [container.name for container in container_list]
-        matches = difflib.get_close_matches(service_name, container_names, n=1, cutoff=0.6)
+        try:
+            container_list = self.client.containers.list(all=True)
+            container_names = [container.name for container in container_list]
+            matches = difflib.get_close_matches(service_name, container_names, n=1, cutoff=0.6)
 
-        if matches:
-            return self.client.containers.get(matches[0])
-        return None
-
+            if matches:
+                return self.client.containers.get(matches[0])
+            return None
+        except docker.errors.DockerException as error:
+            print(f"Error retrieving container: {str(error)}")
+            return None
 
 def serve():
     """
