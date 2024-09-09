@@ -1,3 +1,5 @@
+# pylint: disable=W0221
+
 """
 Unit tests for ServiceManager and serve function.
 """
