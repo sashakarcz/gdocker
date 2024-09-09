@@ -28,7 +28,7 @@ A Python-based gRPC service for managing Docker containers across multiple hosts
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.8+
 - Docker
 - Docker SDK for Python
 - gRPC and Protocol Buffers (`grpcio`, `grpcio-tools`)
