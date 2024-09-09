@@ -4,10 +4,10 @@ Client to manage Docker services via gRPC.
 """
 
 import argparse
+import yaml
 import grpc
 import service_manager_pb2
 import service_manager_pb2_grpc
-import yaml
 from grpc._channel import _InactiveRpcError
 
 
@@ -24,16 +24,16 @@ def manage_service(current_host, service_name, action):
         with grpc.insecure_channel(f"{current_host}:50051") as channel:
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
 
-            response = None  # Initialize response to avoid uninitialized errors
+            response = None
             if action == 'restart':
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
-                response = stub.RestartService(request)
+                response = stub.restart_service(request)
             elif action == 'start':
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
-                response = stub.StartService(request)
+                response = stub.start_service(request)
             elif action == 'stop':
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
-                response = stub.StopService(request)
+                response = stub.stop_service(request)
 
             if response:
                 print(f"[{current_host}] {response.status}")
@@ -53,7 +53,7 @@ def search_service(current_host, search_term):
         with grpc.insecure_channel(f"{current_host}:50051") as channel:
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
             request = service_manager_pb2.SearchRequest(search_term=search_term)
-            response = stub.SearchService(request)
+            response = stub.search_service(request)
 
             if response.container_names:
                 print(f"[{current_host}] Found matching containers: "
@@ -107,3 +107,4 @@ if __name__ == "__main__":
             search_service(current_host, args.service_name)
         else:
             manage_service(current_host, args.service_name, args.action)
+

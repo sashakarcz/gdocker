@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Unit tests for ServiceManager and serve function.
 """
@@ -62,6 +61,47 @@ class TestServiceManager(unittest.TestCase):
         response = self.service_manager.restart_service(request, context)
         self.assertIn('Error restarting service', response.status)
 
+    def test_start_service_success(self):
+        """
+        Test successful service start when service is found.
+        """
+        request = MagicMock(service_name='test_service')
+        context = MagicMock()
+        mock_container = MagicMock()
+        self.mock_client.containers.list.return_value = [mock_container]
+        mock_container.name = 'test_service'
+        self.mock_client.containers.get.return_value = mock_container
+
+        response = self.service_manager.start_service(request, context)
+        self.assertEqual(
+            response.status, "Service 'test_service' started successfully."
+        )
+        mock_container.start.assert_called_once()
+
+    def test_search_service(self):
+        """
+        Test searching for a service by name.
+        """
+        request = MagicMock(search_term='test_service')
+        context = MagicMock()
+        mock_container = MagicMock()
+        mock_container.name = 'test_service'
+        self.mock_client.containers.list.return_value = [mock_container]
+
+        response = self.service_manager.search_containers(request, context)
+        self.assertEqual(response.container_names, ['test_service'])
+
+    def test_search_service_no_matches(self):
+        """
+        Test searching for a service when no matches are found.
+        """
+        request = MagicMock(search_term='unknown_service')
+        context = MagicMock()
+        self.mock_client.containers.list.return_value = []
+
+        response = self.service_manager.search_containers(request, context)
+        self.assertEqual(response.container_names, [])
+
 
 class TestServeFunction(unittest.TestCase):
     """
@@ -89,4 +129,3 @@ class TestServeFunction(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
