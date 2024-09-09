@@ -139,35 +139,7 @@ docker_hosts:
 
 ### Proto File Definition
 
-The gRPC service is defined in `service_manager.proto`:
-
-```proto
-syntax = "proto3";
-
-service ServiceManager {
-    rpc restart_service (ServiceRequest) returns (ServiceResponse);
-    rpc start_service (ServiceRequest) returns (ServiceResponse);
-    rpc stop_service (ServiceRequest) returns (ServiceResponse);
-    rpc search_service (SearchRequest) returns (SearchResponse);
-}
-
-message ServiceRequest {
-    string service_name = 1;
-}
-
-message ServiceResponse {
-    string status = 1;
-}
-
-message SearchRequest {
-    string search_term = 1;
-}
-
-message SearchResponse {
-    repeated string container_names = 1;
-}
-
-```
+The gRPC service is defined in [service_manager.proto](service_manager.proto)
 
 ### Available RPC Methods
 
@@ -215,4 +187,4 @@ We welcome contributions to improve the project! Please follow these steps to co
 5. Open a pull request.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](license) file for details.
