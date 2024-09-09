@@ -4,11 +4,10 @@
 Client to manage Docker services via gRPC.
 """
 
-from grpc._channel import _InactiveRpcError
-
 import argparse
-import yaml
 import grpc
+from grpc._channel import _InactiveRpcError
+import yaml
 import service_manager_pb2
 import service_manager_pb2_grpc
 
@@ -104,9 +103,9 @@ if __name__ == "__main__":
     # Load hosts from the configuration file
     hosts = load_hosts_from_config(args.config)
 
-    for current_host in hosts:
+    for docker_host in hosts:
         if args.action == 'search':
-            search_service(current_host, args.service_name)
+            search_service(docker_host, args.service_name)
         else:
-            manage_service(current_host, args.service_name, args.action)
+            manage_service(docker_host, args.service_name, args.action)
 
