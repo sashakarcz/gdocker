@@ -41,7 +41,7 @@ A Python-based gRPC service for managing Docker containers across multiple hosts
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/docker-grpc-service-manager.git
+git clone https://github.com/sashakarcz/gdocker.git
 cd docker-grpc-service-manager
 ```
 
