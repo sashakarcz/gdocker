@@ -22,7 +22,6 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint client.py && pylint server.py
-        steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
