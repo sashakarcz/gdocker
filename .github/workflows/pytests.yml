@@ -21,7 +21,7 @@ jobs:
         python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service_manager.proto
     - name: Analysing the code with pylint
       run: |
-        pylint client.py && pylint server.py
+        pylint client.py && pylint server_manager.py
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
