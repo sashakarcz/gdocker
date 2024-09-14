@@ -1,5 +1,5 @@
 # Docker gRPC Service Manager
-![Publish Docker image](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml) 
+![Publish Docker image](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml/badge.svg)
 ![Lint](https://github.com/sashakarcz/gdocker/actions/workflows/pytests.yml/badge.svg?branch=main&event=push&job=lint)
 ![Tests](https://github.com/sashakarcz/gdocker/actions/workflows/pytests.yml/badge.svg?branch=main&event=push&job=test)
 
