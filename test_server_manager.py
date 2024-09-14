@@ -4,6 +4,7 @@ Unit tests for the ServiceManager class.
 
 import unittest
 from unittest.mock import patch, MagicMock
+import docker
 from server_manager import ServiceManager
 
 class TestServiceManager(unittest.TestCase):
@@ -86,6 +87,48 @@ class TestServiceManager(unittest.TestCase):
 
         self.mock_container.stop.assert_called_once()
         self.assertEqual(response.status, "Service 'test_service' stopped successfully.")
+
+    def test_restart_service_not_found(self):
+        """
+        Test the restart_service method when the service is not found.
+        """
+        request = MagicMock()
+        request.service_name = "unknown_service"
+
+        # Mock _get_closest_container to return None
+        with patch.object(self.service_manager, '_get_closest_container',
+                          return_value=None):
+            response = self.service_manager.restart_service(request, None)
+
+        self.assertEqual(response.status, "Service 'unknown_service' not found.")
+        self.mock_container.restart.assert_not_called()
+
+    def test_restart_service_docker_exception(self):
+        """
+        Test the restart_service method when a Docker exception occurs.
+        """
+        request = MagicMock()
+        request.service_name = "test_service"
+
+        # Mock _get_closest_container to raise a DockerException
+        with patch.object(self.service_manager, '_get_closest_container',
+                          side_effect=docker.errors.DockerException("Test exception")):
+            response = self.service_manager.restart_service(request, None)
+
+        self.assertIn("Error restarting service", response.status)
+
+    def test_search_service_no_matches(self):
+        """
+        Test the search_service method when no services match the search term.
+        """
+        self.mock_client.containers.list.return_value = []
+
+        request = MagicMock()
+        request.search_term = "nonexistent_service"
+
+        response = self.service_manager.search_service(request, None)
+        self.assertEqual(response.container_names, [])
+
 
 if __name__ == '__main__':
     unittest.main()
