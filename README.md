@@ -189,4 +189,4 @@ We welcome contributions to improve the project! Please follow these steps to co
 5. Open a pull request.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](license) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
