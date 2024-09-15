@@ -1,7 +1,7 @@
 # Docker gRPC Service Manager
-![Publish Docker image](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml/badge.svg)
-![Lint](https://github.com/sashakarcz/gdocker/actions/workflows/pylint.yml/badge.svg)
-![Tests](https://github.com/sashakarcz/gdocker/actions/workflows/pytests.yml/badge.svg)
+[![Publish Docker image](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/sashakarcz/gdocker/actions/workflows/docker-image.yml)
+[![Lint](https://github.com/sashakarcz/gdocker/actions/workflows/pylint.yml/badge.svg)](https://github.com/sashakarcz/gdocker/actions/workflows/pylint.yml)
+[![Tests](https://github.com/sashakarcz/gdocker/actions/workflows/pytests.yml/badge.svg)](https://github.com/sashakarcz/gdocker/actions/workflows/pytests.yml)
 
 
 A Python-based gRPC service for managing Docker containers across multiple hosts. This project allows users to **search**, **start**, **stop**, and **restart** Docker containers running on different Docker hosts. It uses a client-server architecture, where the server exposes gRPC endpoints for managing Docker containers and the client interacts with these endpoints.
