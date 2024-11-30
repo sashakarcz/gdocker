@@ -119,6 +119,71 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
                 status=f"Error starting service: {str(error)}"
             )
 
+    def status_service(self, request, context):
+        """
+        Gets the status of Docker containers based on the provided service name.
+
+        Args:
+            request: The gRPC request containing the service name.
+            context: The gRPC context.
+
+        Returns:
+            A StatusResponse message containing the list of container statuses.
+        """
+        service_name = request.service_name
+        try:
+            container_list = self.client.containers.list(all=True)
+            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
+            
+            if not matching_containers:
+                return service_manager_pb2.StatusResponse(
+                    statuses=[f"No containers found for service '{service_name}'."]
+                )
+
+            statuses = [f"Container '{container.name}' is {container.status}" for container in matching_containers]
+
+            return service_manager_pb2.StatusResponse(
+                statuses=statuses
+            )
+        except docker.errors.DockerException as error:
+            return service_manager_pb2.StatusResponse(
+                statuses=[f"Error retrieving status: {str(error)}"]
+            )
+
+    def logs_service(self, request, context):
+        """
+        Gets the logs of Docker containers based on the provided service name.
+
+        Args:
+            request: The gRPC request containing the service name and follow flag.
+            context: The gRPC context.
+
+        Returns:
+            A LogsResponse message containing the logs of the containers.
+        """
+        service_name = request.service_name
+        try:
+            container_list = self.client.containers.list(all=True)
+            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
+            
+            if not matching_containers:
+                return service_manager_pb2.LogsResponse(
+                    logs=[f"No containers found for service '{service_name}'."]
+                )
+
+            logs = []
+            for container in matching_containers:
+                log_output = container.logs().decode('utf-8')
+                logs.append(f"Logs for container '{container.name}':\n{log_output}")
+
+            return service_manager_pb2.LogsResponse(
+                logs=logs
+            )
+        except docker.errors.DockerException as error:
+            return service_manager_pb2.LogsResponse(
+                logs=[f"Error retrieving logs: {str(error)}"]
+            )
+
     def search_service(self, request, context):
         """
         Searches for Docker services by name.

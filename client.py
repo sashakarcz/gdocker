@@ -1,8 +1,3 @@
-# pylint: disable=E1101
-
-"""
-Client to manage Docker services via gRPC.
-"""
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module='google.protobuf')
 
@@ -15,12 +10,12 @@ import service_manager_pb2_grpc
 
 def manage_service(current_host, service_name, action):
     """
-    Manage a Docker service (start, stop, restart) on the given host.
+    Manage a Docker service (start, stop, restart, status) on the given host.
 
     Args:
         current_host (str): The host IP or hostname.
         service_name (str): The name of the service to manage.
-        action (str): The action to perform (start, stop, restart).
+        action (str): The action to perform (start, stop, restart, status).
     """
     try:
         with grpc.insecure_channel(f"{current_host}:50051") as channel:
@@ -36,76 +31,72 @@ def manage_service(current_host, service_name, action):
             elif action == 'stop':
                 request = service_manager_pb2.ServiceRequest(service_name=service_name)
                 response = stub.stop_service(request)
+            elif action == 'status':
+                request = service_manager_pb2.ServiceRequest(service_name=service_name)
+                response = stub.status_service(request)
 
-            if response:
-                print(f"[{current_host}] {response.status}")
-    except _InactiveRpcError as error:
-        print(f"[{current_host}] Failed to connect to gRPC server: {error.details()}")
-
+            if response and hasattr(response, 'status') and response.status:
+                print(f"{action.capitalize()} response: {response.status}")
+            elif response and hasattr(response, 'statuses') and response.statuses:
+                print(f"{action.capitalize()} response: {', '.join(response.statuses)}")
+    except _InactiveRpcError:
+        pass  # Suppress connection errors
 
 def search_service(current_host, search_term):
     """
-    Search for a Docker service by name on the given host.
+    Search for Docker services by name on the given host.
 
     Args:
         current_host (str): The host IP or hostname.
-        search_term (str): The term to search for in service names.
+        search_term (str): The search term for the service.
     """
     try:
         with grpc.insecure_channel(f"{current_host}:50051") as channel:
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
             request = service_manager_pb2.SearchRequest(search_term=search_term)
             response = stub.search_service(request)
-
             if response.container_names:
-                print(f"[{current_host}] Found matching containers: "
-                      f"{', '.join(response.container_names)}")
-            else:
-                print(f"[{current_host}] No containers found matching '{search_term}'")
-    except _InactiveRpcError as error:
-        print(f"[{current_host}] Failed to connect to gRPC server: {error.details()}")
+                print(f"[{current_host}] Found matching containers: {', '.join(response.container_names)}")
+    except _InactiveRpcError:
+        pass  # Suppress connection errors
 
-
-def load_hosts_from_config(file_path):
+def logs_service(current_host, service_name):
     """
-    Load the list of hosts from the specified configuration file.
+    Get logs of Docker containers based on the provided service name.
 
     Args:
-        file_path (str): The path to the configuration file.
-
-    Returns:
-        list: The list of hosts.
+        current_host (str): The host IP or hostname.
+        service_name (str): The name of the service to get logs for.
     """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        config = yaml.safe_load(file)
-        return config['docker_hosts']
+    try:
+        with grpc.insecure_channel(f"{current_host}:50051") as channel:
+            stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
+            request = service_manager_pb2.LogsRequest(service_name=service_name, follow=False)
+            response = stub.logs_service(request)
+            if response.logs:
+                for log in response.logs:
+                    print(f"[{current_host}] {log}")
+    except _InactiveRpcError:
+        pass  # Suppress connection errors
 
-
-if __name__ == "__main__":
-    # Set up argument parsing
-    parser = argparse.ArgumentParser(
-        description="Manage Docker services on specified hosts"
-    )
-    parser.add_argument(
-        "action", choices=['start', 'stop', 'restart', 'search'],
-        help="The action to perform"
-    )
-    parser.add_argument(
-        "service_name", help="The name of the service to manage or search term"
-    )
-    parser.add_argument(
-        "--config", default="./hosts.yaml",
-        help="Path to the configuration file with the list of hosts "
-             "(default: ./hosts.yaml)"
-    )
+def main():
+    parser = argparse.ArgumentParser(description='Client for ServiceManager gRPC service.')
+    parser.add_argument('--config', type=str, required=True, help='Path to the hosts configuration file.')
+    parser.add_argument('command', choices=['restart', 'start', 'stop', 'search', 'status', 'logs'], help='Command to execute.')
+    parser.add_argument('service_name', type=str, help='Name of the service or search term.')
 
     args = parser.parse_args()
 
-    # Load hosts from the configuration file
-    hosts = load_hosts_from_config(args.config)
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
 
-    for docker_host in hosts:
-        if args.action == 'search':
-            search_service(docker_host, args.service_name)
+    for host in config['docker_hosts']:
+        if args.command == 'search':
+            search_service(host, args.service_name)
+        elif args.command == 'logs':
+            logs_service(host, args.service_name)
         else:
-            manage_service(docker_host, args.service_name, args.action)
+            manage_service(host, args.service_name, args.command)
+
+if __name__ == '__main__':
+    main()

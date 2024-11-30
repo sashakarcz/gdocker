@@ -5,6 +5,8 @@ service ServiceManager {
     rpc start_service (ServiceRequest) returns (ServiceResponse);
     rpc stop_service (ServiceRequest) returns (ServiceResponse);
     rpc search_service (SearchRequest) returns (SearchResponse);
+    rpc status_service (ServiceRequest) returns (StatusResponse);
+    rpc logs_service (LogsRequest) returns (LogsResponse);
 }
 
 message ServiceRequest {
@@ -23,3 +25,15 @@ message SearchResponse {
     repeated string container_names = 1;
 }
 
+message StatusResponse {
+    repeated string statuses = 1;
+}
+
+message LogsRequest {
+    string service_name = 1;
+    bool follow = 2;
+}
+
+message LogsResponse {
+    repeated string logs = 1;
+}
