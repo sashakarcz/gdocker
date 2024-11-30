@@ -86,10 +86,9 @@ class TestServiceManager(unittest.TestCase):
 
         request = MagicMock()
         request.service_name = "test_service"
-        request.follow = False
         response = self.service_manager.logs_service(request, None)
 
-        self.mock_container.logs.assert_called_once_with(follow=False)
+        self.mock_container.logs.assert_called_once()
         self.assertEqual(response.logs, ["Logs for container 'test_service':\ntest logs"])
 
     def test_logs_service_no_containers(self):
@@ -100,7 +99,6 @@ class TestServiceManager(unittest.TestCase):
 
         request = MagicMock()
         request.service_name = "test_service"
-        request.follow = False
         response = self.service_manager.logs_service(request, None)
 
         self.assertEqual(response.logs, ["No containers found for service 'test_service'."])
@@ -113,7 +111,6 @@ class TestServiceManager(unittest.TestCase):
 
         request = MagicMock()
         request.service_name = "test_service"
-        request.follow = False
         response = self.service_manager.logs_service(request, None)
 
         self.assertEqual(response.logs, ["Error retrieving logs: Error"])

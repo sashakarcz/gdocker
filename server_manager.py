@@ -167,7 +167,7 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         Gets the logs of Docker containers based on the provided service name.
 
         Args:
-            request: The gRPC request containing the service name and follow flag.
+            request: The gRPC request containing the service name.
             context: The gRPC context.
 
         Returns:
