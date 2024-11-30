@@ -3,6 +3,8 @@
 """
 Client to manage Docker services via gRPC.
 """
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module='google.protobuf')
 
 import argparse
 import grpc
