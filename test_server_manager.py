@@ -24,111 +24,99 @@ class TestServiceManager(unittest.TestCase):
         self.service_manager = ServiceManager()
         self.mock_container = MagicMock()
         self.mock_container.name = "test_service"
+        self.mock_container.logs.return_value = b"test logs"
+        self.mock_container.status = "running"
 
     def test_restart_service(self):
         """
         Test the restart_service method.
         """
-        self.mock_client.containers.get.return_value = self.mock_container
-
-        request = MagicMock()
-        request.service_name = "test_service"
-
-        # Mock _get_closest_container to return a container
-        with patch.object(self.service_manager, '_get_closest_container',
-                          return_value=self.mock_container):
-            response = self.service_manager.restart_service(request, None)
-
-        self.mock_container.restart.assert_called_once()
-        self.assertEqual(response.status, "Service 'test_service' restarted successfully.")
-
-    def test_search_service(self):
-        """
-        Test the search_service method.
-        """
         self.mock_client.containers.list.return_value = [self.mock_container]
 
         request = MagicMock()
-        request.search_term = "test"
-
-        response = self.service_manager.search_service(request, None)
-        self.assertIn("test_service", response.container_names)
-
-    def test_start_service(self):
-        """
-        Test the start_service method.
-        """
-        self.mock_client.containers.get.return_value = self.mock_container
-
-        request = MagicMock()
         request.service_name = "test_service"
+        response = self.service_manager.restart_service(request, None)
 
-        # Mock _get_closest_container to return a container
-        with patch.object(self.service_manager, '_get_closest_container',
-                          return_value=self.mock_container):
-            response = self.service_manager.start_service(request, None)
-
-        self.mock_container.start.assert_called_once()
-        self.assertEqual(response.status, "Service 'test_service' started successfully.")
+        self.mock_container.restart.assert_called_once()
+        self.assertEqual(response.status, "Service 'test_service' restarted successfully.")
 
     def test_stop_service(self):
         """
         Test the stop_service method.
         """
-        self.mock_client.containers.get.return_value = self.mock_container
+        self.mock_client.containers.list.return_value = [self.mock_container]
 
         request = MagicMock()
         request.service_name = "test_service"
-
-        # Mock _get_closest_container to return a container
-        with patch.object(self.service_manager, '_get_closest_container',
-                          return_value=self.mock_container):
-            response = self.service_manager.stop_service(request, None)
+        response = self.service_manager.stop_service(request, None)
 
         self.mock_container.stop.assert_called_once()
         self.assertEqual(response.status, "Service 'test_service' stopped successfully.")
 
-    def test_restart_service_not_found(self):
+    def test_start_service(self):
         """
-        Test the restart_service method when the service is not found.
+        Test the start_service method.
         """
-        request = MagicMock()
-        request.service_name = "unknown_service"
+        self.mock_client.containers.list.return_value = [self.mock_container]
 
-        # Mock _get_closest_container to return None
-        with patch.object(self.service_manager, '_get_closest_container',
-                          return_value=None):
-            response = self.service_manager.restart_service(request, None)
-
-        self.assertEqual(response.status, "Service 'unknown_service' not found.")
-        self.mock_container.restart.assert_not_called()
-
-    def test_restart_service_docker_exception(self):
-        """
-        Test the restart_service method when a Docker exception occurs.
-        """
         request = MagicMock()
         request.service_name = "test_service"
+        response = self.service_manager.start_service(request, None)
 
-        # Mock _get_closest_container to raise a DockerException
-        with patch.object(self.service_manager, '_get_closest_container',
-                          side_effect=docker.errors.DockerException("Test exception")):
-            response = self.service_manager.restart_service(request, None)
+        self.mock_container.start.assert_called_once()
+        self.assertEqual(response.status, "Service 'test_service' started successfully.")
 
-        self.assertIn("Error restarting service", response.status)
-
-    def test_search_service_no_matches(self):
+    def test_status_service(self):
         """
-        Test the search_service method when no services match the search term.
+        Test the status_service method.
+        """
+        self.mock_client.containers.list.return_value = [self.mock_container]
+
+        request = MagicMock()
+        request.service_name = "test_service"
+        response = self.service_manager.status_service(request, None)
+
+        self.assertEqual(response.statuses, ["Container 'test_service' is running"])
+
+    def test_logs_service(self):
+        """
+        Test the logs_service method.
+        """
+        self.mock_client.containers.list.return_value = [self.mock_container]
+
+        request = MagicMock()
+        request.service_name = "test_service"
+        request.follow = False
+        response = self.service_manager.logs_service(request, None)
+
+        self.mock_container.logs.assert_called_once_with(follow=False)
+        self.assertEqual(response.logs, ["Logs for container 'test_service':\ntest logs"])
+
+    def test_logs_service_no_containers(self):
+        """
+        Test the logs_service method when no containers are found.
         """
         self.mock_client.containers.list.return_value = []
 
         request = MagicMock()
-        request.search_term = "nonexistent_service"
+        request.service_name = "test_service"
+        request.follow = False
+        response = self.service_manager.logs_service(request, None)
 
-        response = self.service_manager.search_service(request, None)
-        self.assertEqual(response.container_names, [])
+        self.assertEqual(response.logs, ["No containers found for service 'test_service'."])
 
+    def test_logs_service_error(self):
+        """
+        Test the logs_service method when an error occurs.
+        """
+        self.mock_client.containers.list.side_effect = docker.errors.DockerException("Error")
+
+        request = MagicMock()
+        request.service_name = "test_service"
+        request.follow = False
+        response = self.service_manager.logs_service(request, None)
+
+        self.assertEqual(response.logs, ["Error retrieving logs: Error"])
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,12 +1,18 @@
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module='google.protobuf')
+"""
+Client for ServiceManager gRPC service.
+"""
 
-import argparse
-import grpc
-from grpc._channel import _InactiveRpcError
-import yaml
-import service_manager_pb2
-import service_manager_pb2_grpc
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=UserWarning, module='google.protobuf')
+    import argparse
+    import grpc
+    from grpc._channel import _InactiveRpcError
+    import yaml
+    import service_manager_pb2
+    import service_manager_pb2_grpc
+
+# pylint: disable=E1101
 
 def manage_service(current_host, service_name, action):
     """
@@ -56,7 +62,8 @@ def search_service(current_host, search_term):
             request = service_manager_pb2.SearchRequest(search_term=search_term)
             response = stub.search_service(request)
             if response.container_names:
-                print(f"[{current_host}] Found matching containers: {', '.join(response.container_names)}")
+                print(f"[{current_host}] Found matching containers: {', '
+                      .join(response.container_names)}")
     except _InactiveRpcError:
         pass  # Suppress connection errors
 
@@ -80,14 +87,22 @@ def logs_service(current_host, service_name):
         pass  # Suppress connection errors
 
 def main():
+    """
+    Main function to parse arguments and execute the appropriate command.
+    """
     parser = argparse.ArgumentParser(description='Client for ServiceManager gRPC service.')
-    parser.add_argument('--config', type=str, required=True, help='Path to the hosts configuration file.')
-    parser.add_argument('command', choices=['restart', 'start', 'stop', 'search', 'status', 'logs'], help='Command to execute.')
+    parser.add_argument('--config', type=str,
+                        required=True,
+                        help='Path to the hosts configuration file.')
+    parser.add_argument(
+        'command', choices=['restart', 'start', 'stop', 'search', 'status', 'logs'],
+        help='Command to execute.'
+    )
     parser.add_argument('service_name', type=str, help='Name of the service or search term.')
 
     args = parser.parse_args()
 
-    with open(args.config, 'r') as f:
+    with open(args.config, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     for host in config['docker_hosts']:
@@ -100,3 +115,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -37,8 +37,11 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         service_name = request.service_name
         try:
             container_list = self.client.containers.list(all=True)
-            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
-            
+            matching_containers = [
+                container for container in container_list if
+                container.name.startswith(service_name)
+            ]
+
             if not matching_containers:
                 return service_manager_pb2.ServiceResponse(
                     status=f"No containers found for service '{service_name}'."
@@ -69,8 +72,10 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         service_name = request.service_name
         try:
             container_list = self.client.containers.list(all=True)
-            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
-            
+            matching_containers = [
+                container for container in container_list if container.name.startswith(service_name)
+            ]
+
             if not matching_containers:
                 return service_manager_pb2.ServiceResponse(
                     status=f"No containers found for service '{service_name}'."
@@ -101,8 +106,10 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         service_name = request.service_name
         try:
             container_list = self.client.containers.list(all=True)
-            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
-            
+            matching_containers = [
+                container for container in container_list if container.name.startswith(service_name)
+            ]
+
             if not matching_containers:
                 return service_manager_pb2.ServiceResponse(
                     status=f"No containers found for service '{service_name}'."
@@ -133,14 +140,19 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         service_name = request.service_name
         try:
             container_list = self.client.containers.list(all=True)
-            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
-            
+            matching_containers = [
+                container for container in container_list if container.name.startswith(service_name)
+            ]
+
             if not matching_containers:
                 return service_manager_pb2.StatusResponse(
                     statuses=[f"No containers found for service '{service_name}'."]
                 )
 
-            statuses = [f"Container '{container.name}' is {container.status}" for container in matching_containers]
+            statuses = [
+                f"Container '{container.name}' is {container.status}" for
+                container in matching_containers
+            ]
 
             return service_manager_pb2.StatusResponse(
                 statuses=statuses
@@ -164,8 +176,10 @@ class ServiceManager(service_manager_pb2_grpc.ServiceManagerServicer):
         service_name = request.service_name
         try:
             container_list = self.client.containers.list(all=True)
-            matching_containers = [container for container in container_list if container.name.startswith(service_name)]
-            
+            matching_containers = [
+                container for container in container_list if container.name.startswith(service_name)
+            ]
+
             if not matching_containers:
                 return service_manager_pb2.LogsResponse(
                     logs=[f"No containers found for service '{service_name}'."]
