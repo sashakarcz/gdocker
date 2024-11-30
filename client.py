@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Client for ServiceManager gRPC service.
 """
@@ -44,7 +46,8 @@ def manage_service(current_host, service_name, action):
             if response and hasattr(response, 'status') and response.status:
                 print(f"{action.capitalize()} response: {response.status}")
             elif response and hasattr(response, 'statuses') and response.statuses:
-                print(f"{action.capitalize()} response: {', '.join(response.statuses)}")
+                if response.statuses[0] != f"No containers found for service '{service_name}'.":
+                    print(f"{action.capitalize()} response: {', '.join(response.statuses)}")
     except _InactiveRpcError:
         pass  # Suppress connection errors
 
@@ -62,8 +65,8 @@ def search_service(current_host, search_term):
             request = service_manager_pb2.SearchRequest(search_term=search_term)
             response = stub.search_service(request)
             if response.container_names:
-                print(f"[{current_host}] Found matching containers: "
-                      f"{', '.join(response.container_names)}")
+                containers = ', '.join(response.container_names)
+                print(f"[{current_host}] Found matching containers: {containers}")
     except _InactiveRpcError:
         pass  # Suppress connection errors
 
@@ -80,7 +83,9 @@ def logs_service(current_host, service_name):
             stub = service_manager_pb2_grpc.ServiceManagerStub(channel)
             request = service_manager_pb2.LogsRequest(service_name=service_name, follow=False)
             response = stub.logs_service(request)
-            if response.logs:
+            if response.logs and response.logs[0] != (
+                f"No containers found for service '{service_name}'."
+            ):
                 for log in response.logs:
                     print(f"[{current_host}] {log}")
     except _InactiveRpcError:
@@ -91,9 +96,10 @@ def main():
     Main function to parse arguments and execute the appropriate command.
     """
     parser = argparse.ArgumentParser(description='Client for ServiceManager gRPC service.')
-    parser.add_argument('--config', type=str,
-                        required=True,
-                        help='Path to the hosts configuration file.')
+    parser.add_argument(
+        '--config', type=str, default='/etc/gdocker/hosts.yaml',
+        help='Path to the hosts configuration file.'
+    )
     parser.add_argument(
         'command', choices=['restart', 'start', 'stop', 'search', 'status', 'logs'],
         help='Command to execute.'
