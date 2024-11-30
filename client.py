@@ -62,8 +62,8 @@ def search_service(current_host, search_term):
             request = service_manager_pb2.SearchRequest(search_term=search_term)
             response = stub.search_service(request)
             if response.container_names:
-                print(f"[{current_host}] Found matching containers: {', '
-                      .join(response.container_names)}")
+                print(f"[{current_host}] Found matching containers: "
+                      f"{', '.join(response.container_names)}")
     except _InactiveRpcError:
         pass  # Suppress connection errors
 
