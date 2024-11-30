@@ -12,7 +12,10 @@ A Python-based gRPC service for managing Docker containers across multiple hosts
 - **Start Docker Containers**: Start a stopped Docker container by name.
 - **Stop Docker Containers**: Stop a running Docker container by name.
 - **Restart Docker Containers**: Restart a running Docker container by name.
+- **Get Status of Docker Containers**: Get the status of Docker containers by name.
+- **Get Logs of Docker Containers**: Get the logs of Docker containers by name.
 - **Fuzzy Matching**: Supports fuzzy matching to find containers even if the exact name is not known.
+
 
 ## Table of Contents
 
@@ -112,6 +115,9 @@ The client supports multiple actions (`start`, `stop`, `restart`, `search`) and 
 - `stop`:  Stop a Docker container by name.
 - `restart`:  Restart a Docker container by name.
 - `search`: Search for a Docker container by name or partial name.
+- `status`: Get the status of Docker containers by name.
+- `logs`: Get the logs of Docker containers by name.
+
 
 #### Useage
 
@@ -149,6 +155,8 @@ The gRPC service is defined in [service_manager.proto](service_manager.proto)
 - `start_service`: Starts a container by name.
 - `stop_service`: Stops a container by name.
 - `search_service`: Searches for containers by name or partial name.
+- `status_service`: Gets the status of containers by name.
+- `logs_service`: Gets the logs of containers by name.
 
 ## Deployment
 
